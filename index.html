@@ -5,23 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Karate Rank Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
             background-color: #F5F5F5;
             color: #1a1a1a;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Noto Serif', Georgia, serif;
             overflow-x: hidden;
             -webkit-text-size-adjust: 100%;
         }
 
-        /* Contenedor del cinturón (progreso) */
+        /* Progress bar */
         #progress-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 6px;
+            height: 15px;
             background: #333;
             z-index: 1000;
             transform: translateY(-100%);
@@ -36,9 +39,30 @@
             height: 100%;
             width: 0%;
             background-color: white;
-            transition: background-color 0.3s ease, width 0.1s linear;
+            transition: background-color 0.5s ease, width 0.1s linear;
         }
 
+        /* Rank label */
+        .label {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            font-family: 'Noto Serif', serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #777;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .label.visible {
+            opacity: 1;
+        }
+
+        /* Sections */
         section {
             min-height: 100svh;
             display: flex;
@@ -46,85 +70,142 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: env(safe-area-inset-top, 60px) clamp(24px, 6vw, 60px) env(safe-area-inset-bottom, 60px);
-            padding-top: max(env(safe-area-inset-top), 60px);
-            padding-bottom: max(env(safe-area-inset-bottom), 60px);
+            padding: max(env(safe-area-inset-top), 60px) clamp(24px, 6vw, 60px) max(env(safe-area-inset-bottom), 60px);
             position: relative;
             box-sizing: border-box;
+            transition: background-color 0.6s ease;
         }
 
         section:not(:last-child) {
-            border-bottom: 5px solid rgba(0, 0, 0, 0.171);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* Card */
+        .card {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+            padding: clamp(28px, 7vw, 48px) clamp(24px, 6vw, 40px);
+            max-width: min(380px, 90vw);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Scroll-in animation starting state */
+            opacity: 0;
+            transform: translateY(36px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Accent rule */
+        .accent-rule {
+            width: 3px;
+            height: 36px;
+            border-radius: 2px;
+            background-color: currentColor;
+            margin-bottom: 20px;
+            opacity: 0.35;
+            flex-shrink: 0;
         }
 
         .icon-container {
-            width: clamp(100px, 30vw, 150px);
+            width: clamp(90px, 28vw, 130px);
             height: auto;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         h1 {
-            font-size: clamp(1.8rem, 6vw, 2.5rem);
-            margin-bottom: 10px;
+            font-size: clamp(1.6rem, 5.5vw, 2.2rem);
+            font-weight: 700;
+            margin: 0 0 12px;
             line-height: 1.2;
+            letter-spacing: -0.01em;
         }
 
         p {
-            font-size: clamp(1rem, 3.5vw, 1.1rem);
-            line-height: 1.6;
+            font-size: clamp(0.95rem, 3.2vw, 1.05rem);
+            line-height: 1.7;
+            margin: 0;
+            max-width: 100%;
+        }
+
+        /* Intro section — no card */
+        #intro {
+            background-color: #F5F5F5;
+        }
+
+        #intro h1 {
+            font-size: clamp(1.8rem, 6vw, 2.6rem);
+        }
+
+        #intro p {
             max-width: min(340px, 90vw);
+            color: #444;
         }
 
-        .label {
-            position: fixed;
-            top: 20px;
-            right: 16px;
-            font-weight: bold;
-            font-size: 0.8rem;
-            color: #777;
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            letter-spacing: 0.03em;
-        }
-
-        .label.visible {
-            opacity: 1;
-        }
-
-        .scroll-down-arrow {
+        /* Kanji glyph */
+        .kanji {
             position: absolute;
-            bottom: max(env(safe-area-inset-bottom), 24px);
+            bottom: max(env(safe-area-inset-bottom), 20px);
             left: 50%;
             transform: translateX(-50%);
-            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-size: clamp(2rem, 6vw, 2.8rem);
+            opacity: 0.2;
             user-select: none;
+            line-height: 1;
+            font-family: 'Noto Serif', serif;
         }
 
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
-            40% { transform: translateY(-15px) translateX(-50%); }
-            60% { transform: translateY(-7px) translateX(-50%); }
+        /* Scroll hint on intro */
+        .scroll-hint {
+            position: absolute;
+            bottom: max(env(safe-area-inset-bottom), 28px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(0.85rem, 3vw, 0.95rem);
+            color: #999;
+            font-style: italic;
+            user-select: none;
+            white-space: nowrap;
         }
 
+        /* Dark section (Kuro Obi) */
         .kuro-text {
-            color: #f5f5f5 !important;
+            color: #f0f0f0 !important;
         }
 
-        h1,
-        h2 {
+        #kuro-section .card {
+            background: rgba(26, 26, 26, 0.7);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        #kuro-section .kanji {
+            color: #f0f0f0;
+        }
+
+        h1, h2 {
             margin: 10px 0;
         }
 
         .foot-note {
             width: 100%;
-            max-width: min(320px, 90vw);
             text-align: left;
-            margin-top: 40px;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.15);
         }
 
         .foot-note p {
-            margin: 5px 0;
+            margin: 4px 0;
             text-align: left;
             font-style: italic;
             font-size: clamp(0.9rem, 3vw, 1rem);
@@ -134,14 +215,13 @@
 
 <body>
 
-    <!-- The Belt Progress Bar -->
     <div id="progress-container">
         <div id="belt-progress"></div>
     </div>
 
     <div class="label" id="rank-display">Shiro Obi</div>
 
-    <!-- Sections -->
+    <!-- Intro -->
     <section id="intro">
         <h1>Para mi sensei favorita</h1>
         <p>
@@ -152,113 +232,127 @@
         </p>
         <br>
         <p>Desde el color blanco de la primera mirada hasta el negro del mayor privilegio.</p>
-        <!-- --- The New Arrow Element --- -->
-        <div class="scroll-down-arrow">
-            <p><i>&#8595; Dale hacia abajo &#8595;</i></p>
-        </div>
+        <div class="scroll-hint">&#8595; Dale hacia abajo &#8595;</div>
     </section>
 
     <!-- Shiro Obi (Blanco) -->
-    <section data-color="#ffffff" data-rank="Shiro Obi">
-        <img class="icon-container" src="./assets/svg/comienzo.png" alt="El comienzo">
-        <h1>El Comienzo</h1>
-        <p>Esta etapa representa el inicio de todo: la pureza del primer instante en que nuestras miradas se encontraron
-            y nació la primera sonrisa.</p>
-        <div class="scroll-down-arrow">始</div>
+    <section data-color="#c8c8c8" data-rank="Shiro Obi" data-bg="248,248,248">
+        <div class="card">
+            <div class="accent-rule"></div>
+            <img class="icon-container" src="./assets/svg/comienzo.png" alt="El comienzo">
+            <h1>El Comienzo</h1>
+            <p>Esta etapa representa el inicio de todo: la pureza del primer instante en que nuestras miradas se encontraron y nació la primera sonrisa.</p>
+        </div>
+        <div class="kanji">始</div>
     </section>
 
     <!-- Ki Obi (Amarillo) -->
-    <section data-color="#ffe135" data-rank="Ki Obi">
-        <img class="icon-container" src="./assets/svg/semilla.png" alt="La semilla">
-        <h1>La Semilla</h1>
-        <p>Esta etapa representa el despertar de la curiosidad, donde las primeras risas compartidas nos permitieron
-            descubrir todo lo que nos une.</p>
-        <div class="scroll-down-arrow">友</div>
+    <section data-color="#ffe135" data-rank="Ki Obi" data-bg="255,242,180">
+        <div class="card">
+            <div class="accent-rule"></div>
+            <img class="icon-container" src="./assets/svg/semilla.png" alt="La semilla">
+            <h1>La Semilla</h1>
+            <p>Esta etapa representa el despertar de la curiosidad, donde las primeras risas compartidas nos permitieron descubrir todo lo que nos une.</p>
+        </div>
+        <div class="kanji">友</div>
     </section>
 
     <!-- Daidaiiro Obi (Naranja) -->
-    <section data-color="#ff8c00" data-rank="Daidaiiro Obi">
-        <img class="icon-container" src="./assets/svg/cimientos.png" alt="La estabilidad">
-        <h1>Los Cimientos</h1>
-        <p>Esta etapa representa el momento de la decisión de querer formar algo más contigo. Ambos nos sentimos cómodos
-            con el otro y comenzamos a tocar más el tema y construir una base sólida donde caminar.</p>
-        <div class="scroll-down-arrow">忍</div>
+    <section data-color="#ff8c00" data-rank="Daidaiiro Obi" data-bg="255,220,170">
+        <div class="card">
+            <div class="accent-rule"></div>
+            <img class="icon-container" src="./assets/svg/cimientos.png" alt="La estabilidad">
+            <h1>Los Cimientos</h1>
+            <p>Esta etapa representa el momento de la decisión de querer formar algo más contigo. Ambos nos sentimos cómodos con el otro y comenzamos a construir una base sólida donde caminar.</p>
+        </div>
+        <div class="kanji">忍</div>
     </section>
 
     <!-- Midori Obi (Verde) -->
-    <section data-color="#228b22" data-rank="Midori Obi">
-        <img class="icon-container" src="./assets/svg/brote.png" alt="El crecimiento">
-        <h1>El Crecimiento</h1>
-        <p>Esta etapa representa el florecer de mi afecto hacia ti, donde la seguridad de un abrazo y mis explosiones de
-            cariño marcaron nuestro avance.</p>
-        <div class="scroll-down-arrow">忍</div>
+    <section data-color="#228b22" data-rank="Midori Obi" data-bg="190,230,190">
+        <div class="card">
+            <div class="accent-rule"></div>
+            <img class="icon-container" src="./assets/svg/brote.png" alt="El crecimiento">
+            <h1>El Crecimiento</h1>
+            <p>Esta etapa representa el florecer de mi afecto hacia ti, donde la seguridad de un abrazo y mis explosiones de cariño marcaron nuestro avance.</p>
+        </div>
+        <div class="kanji">忍</div>
     </section>
 
     <!-- Ao Obi (Azul) -->
-    <section data-color="#0000ff" data-rank="Ao Obi">
-        <img class="icon-container" src="./assets/svg/fluidez.png" alt="">
-        <h1>La Armonía</h1>
-        <p>Esta etapa representa nuestra capacidad de fluir, entendiéndonos sin necesidad de palabras y adaptándonos al
-            ritmo del otro.</p>
-        <div class="scroll-down-arrow">心</div>
+    <section data-color="#0000ff" data-rank="Ao Obi" data-bg="180,200,255">
+        <div class="card">
+            <div class="accent-rule"></div>
+            <img class="icon-container" src="./assets/svg/fluidez.png" alt="La fluidez">
+            <h1>La Armonía</h1>
+            <p>Esta etapa representa nuestra capacidad de fluir, entendiéndonos sin necesidad de palabras y adaptándonos al ritmo del otro.</p>
+        </div>
+        <div class="kanji">心</div>
     </section>
 
     <!-- Murasaki Obi (Morado) -->
-    <section data-color="#A32CC4" data-rank="Murasaki Obi">
-        <img class="icon-container" src="./assets/svg/horizonte.png" alt="La dedicación">
-        <h1>El Horizonte</h1>
-        <p>Esta etapa representa el puente hacia el futuro, uniendo los descubrimientos del inicio con la madurez de lo
-            que hoy estamos construyendo.</p>
-        <div class="scroll-down-arrow">心</div>
+    <section data-color="#A32CC4" data-rank="Murasaki Obi" data-bg="220,185,240">
+        <div class="card">
+            <div class="accent-rule"></div>
+            <img class="icon-container" src="./assets/svg/horizonte.png" alt="La dedicación">
+            <h1>El Horizonte</h1>
+            <p>Esta etapa representa el puente hacia el futuro, uniendo los descubrimientos del inicio con la madurez de lo que hoy estamos construyendo.</p>
+        </div>
+        <div class="kanji">心</div>
     </section>
 
     <!-- Aka Obi (Rojo) -->
-    <section data-color="#FF0000" data-rank="Aka Obi">
-        <img class="icon-container" src="./assets/svg/fuerza.png" alt="La confianza">
-        <h1>La Fuerza</h1>
-        <p>Esta etapa representa el coraje y la pasión que necesitamos para poder hacer que esto funcione de la forma en
-            la que ambos queremos <i style="font-size: 1rem;">(y también que te quieres poner mamadísima)</i>.</p>
-        <div class="scroll-down-arrow">心</div>
+    <section data-color="#FF0000" data-rank="Aka Obi" data-bg="255,190,190">
+        <div class="card">
+            <div class="accent-rule"></div>
+            <img class="icon-container" src="./assets/svg/fuerza.png" alt="La confianza">
+            <h1>La Fuerza</h1>
+            <p>Esta etapa representa el coraje y la pasión que necesitamos para poder hacer que esto funcione de la forma en la que ambos queremos <i>(y también que te quieres poner mamadísima)</i>.</p>
+        </div>
+        <div class="kanji">心</div>
     </section>
 
     <!-- Chairo Obi (Marrón) -->
-    <section data-color="#4A2511" data-rank="Chairo Obi">
-        <img class="icon-container" src="./assets/svg/perfeccion.png" alt="La perfeccion">
-        <h1>La Perfección</h1>
-        <p>Esta etapa representa el esfuerzo por pulir nuestra relación, buscando ese equilibrio perfecto que
-            funcione para ambos.</p>
-        <div class="scroll-down-arrow">心</div>
+    <section data-color="#4A2511" data-rank="Chairo Obi" data-bg="210,185,165">
+        <div class="card">
+            <div class="accent-rule"></div>
+            <img class="icon-container" src="./assets/svg/perfeccion.png" alt="La perfeccion">
+            <h1>La Perfección</h1>
+            <p>Esta etapa representa el esfuerzo por pulir nuestra relación, buscando ese equilibrio perfecto que funcione para ambos.</p>
+        </div>
+        <div class="kanji">心</div>
     </section>
 
     <!-- Kuro Obi (Negro) -->
-    <section data-color="#000000" data-rank="Kuro Obi" style="background-color: #1a1a1a;">
-        <img class="icon-container" style="width: 250px; margin-top: 10%;" src="./assets/svg/honor.png" alt="">
-        <h1 class="kuro-text">El mayor honor</h1>
-        <p class="kuro-text">
-            Esta etapa representa el mayor privilegio para mi: poder llegar a tener una relación que no sientas como una
-            carga,
-            <strong>donde siempre puedas ser tú misma</strong> y sigamos aprendiendo juntos este camino.
-        </p>
-        <br>
-        <div class="foot-note">
-            <p class="kuro-text">Te quiero &#9825;</p>
-            <p class="signature kuro-text">- Fernando</p>
+    <section id="kuro-section" data-color="#555555" data-rank="Kuro Obi" data-bg="26,26,26" style="background-color: rgb(26,26,26);">
+        <div class="card">
+            <div class="accent-rule" style="opacity:0.5;"></div>
+            <img class="icon-container kuro-text" style="width: clamp(140px, 40vw, 200px);" src="./assets/svg/honor.png" alt="El honor">
+            <h1 class="kuro-text">El mayor honor</h1>
+            <p class="kuro-text">
+                Esta etapa representa el mayor privilegio para mi: poder llegar a tener una relación que no sientas como una carga,
+                <strong>donde siempre puedas ser tú misma</strong> y sigamos aprendiendo juntos este camino.
+            </p>
+            <div class="foot-note">
+                <p class="kuro-text">Te quiero &#9825;</p>
+                <p class="kuro-text">— Fernando</p>
+            </div>
         </div>
-        <div class="scroll-down-arrow kuro-text">愛</div>
+        <div class="kanji" style="color:#f0f0f0; opacity:0.15;">愛</div>
     </section>
 
     <script>
         const progressBar = document.getElementById('belt-progress');
         const progressContainer = document.getElementById('progress-container');
         const rankDisplay = document.getElementById('rank-display');
-        const sections = document.querySelectorAll('section:not(#intro)'); // Ignoramos la intro
+        const sections = document.querySelectorAll('section:not(#intro)');
         const introSection = document.getElementById('intro');
 
+        // ── Scroll: progress bar + section background tint ──────────────────
         window.addEventListener('scroll', () => {
             const scrollTop = window.scrollY;
             const introHeight = introSection.offsetHeight;
 
-            // 1. Mostrar/Ocultar la barra de progreso
             if (scrollTop > introHeight / 2) {
                 progressContainer.classList.add('visible');
                 rankDisplay.classList.add('visible');
@@ -267,26 +361,45 @@
                 rankDisplay.classList.remove('visible');
             }
 
-            // 2. Calcular progreso (empezando DESDE el final de la intro)
             const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-            let scrolled = ((scrollTop) / totalHeight) * 100;
+            const scrolled = Math.max(0, Math.min((scrollTop / totalHeight) * 100, 100));
+            progressBar.style.width = scrolled + '%';
 
-            // Limitar entre 0 y 100
-            scrolled = Math.max(0, Math.min(scrolled, 100));
-            progressBar.style.width = scrolled + "%";
-
-            // 3. Cambiar color y texto
             const threshold = window.innerHeight * 0.3;
             sections.forEach((section) => {
                 const rect = section.getBoundingClientRect();
                 if (rect.top <= threshold && rect.bottom >= threshold) {
                     const color = section.getAttribute('data-color');
                     const rank = section.getAttribute('data-rank');
+                    const bg = section.getAttribute('data-bg');
                     progressBar.style.backgroundColor = color;
                     rankDisplay.innerText = rank;
+                    if (bg && section.id !== 'kuro-section') {
+                        section.style.backgroundColor = `rgba(${bg}, 0.35)`;
+                    }
                 }
             });
         }, { passive: true });
+
+        // ── Intersection Observer: card scroll-in animations ─────────────────
+        const cards = document.querySelectorAll('.card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+
+        cards.forEach(card => observer.observe(card));
+
+        // ── Accent rule: match section belt color ─────────────────────────────
+        sections.forEach(section => {
+            const color = section.getAttribute('data-color');
+            const rule = section.querySelector('.accent-rule');
+            if (rule && color) rule.style.backgroundColor = color;
+        });
     </script>
 </body>
 
