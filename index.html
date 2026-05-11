@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Karate Rank Tracker</title>
     <style>
         body {
@@ -12,6 +12,7 @@
             color: #1a1a1a;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
         }
 
         /* Contenedor del cinturón (progreso) */
@@ -20,16 +21,13 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 25px;
+            height: 6px;
             background: #333;
             z-index: 1000;
-            border-bottom: 3px solid #000;
-            /* Ocultar inicialmente hasta que pasemos la primera sección */
             transform: translateY(-100%);
             transition: transform 0.4s ease;
         }
 
-        /* Clase para mostrar la barra cuando empezamos a scrollear */
         #progress-container.visible {
             transform: translateY(0);
         }
@@ -42,13 +40,15 @@
         }
 
         section {
-            min-height: 100vh;
+            min-height: 100svh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 60px 30px;
+            padding: env(safe-area-inset-top, 60px) clamp(24px, 6vw, 60px) env(safe-area-inset-bottom, 60px);
+            padding-top: max(env(safe-area-inset-top), 60px);
+            padding-bottom: max(env(safe-area-inset-bottom), 60px);
             position: relative;
             box-sizing: border-box;
         }
@@ -58,63 +58,53 @@
         }
 
         .icon-container {
-            max-width: 150px;
+            width: clamp(100px, 30vw, 150px);
             height: auto;
             margin-bottom: 20px;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
             margin-bottom: 10px;
+            line-height: 1.2;
         }
 
         p {
-            font-size: 1.1rem;
-            line-height: 1.5;
-            max-width: 300px;
+            font-size: clamp(1rem, 3.5vw, 1.1rem);
+            line-height: 1.6;
+            max-width: min(340px, 90vw);
         }
 
         .label {
             position: fixed;
-            top: 40px;
-            right: 20px;
+            top: 20px;
+            right: 16px;
             font-weight: bold;
+            font-size: 0.8rem;
             color: #777;
             z-index: 999;
             opacity: 0;
             transition: opacity 0.4s ease;
+            letter-spacing: 0.03em;
         }
 
         .label.visible {
             opacity: 1;
         }
 
-        /* Estilo para la flecha de la intro */
         .scroll-down-arrow {
             position: absolute;
-            bottom: 30px;
+            bottom: max(env(safe-area-inset-bottom), 24px);
             left: 50%;
             transform: translateX(-50%);
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            user-select: none;
         }
 
         @keyframes bounce {
-
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateY(0) translateX(-50%);
-            }
-
-            40% {
-                transform: translateY(-15px) translateX(-50%);
-            }
-
-            60% {
-                transform: translateY(-7px) translateX(-50%);
-            }
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+            40% { transform: translateY(-15px) translateX(-50%); }
+            60% { transform: translateY(-7px) translateX(-50%); }
         }
 
         .kuro-text {
@@ -128,19 +118,16 @@
 
         .foot-note {
             width: 100%;
-            max-width: 320px;
-            /* Para que coincida con el ancho de tus párrafos */
+            max-width: min(320px, 90vw);
             text-align: left;
-            /* Alineación a la izquierda */
             margin-top: 40px;
-
         }
 
         .foot-note p {
             margin: 5px 0;
             text-align: left;
             font-style: italic;
-            font-size: 1rem;
+            font-size: clamp(0.9rem, 3vw, 1rem);
         }
     </style>
 </head>
@@ -267,8 +254,8 @@
         const sections = document.querySelectorAll('section:not(#intro)'); // Ignoramos la intro
         const introSection = document.getElementById('intro');
 
-        window.onscroll = () => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
             const introHeight = introSection.offsetHeight;
 
             // 1. Mostrar/Ocultar la barra de progreso
@@ -289,17 +276,17 @@
             progressBar.style.width = scrolled + "%";
 
             // 3. Cambiar color y texto
+            const threshold = window.innerHeight * 0.3;
             sections.forEach((section) => {
                 const rect = section.getBoundingClientRect();
-                if (rect.top <= 150 && rect.bottom >= 150) {
+                if (rect.top <= threshold && rect.bottom >= threshold) {
                     const color = section.getAttribute('data-color');
                     const rank = section.getAttribute('data-rank');
                     progressBar.style.backgroundColor = color;
                     rankDisplay.innerText = rank;
-
                 }
             });
-        };
+        }, { passive: true });
     </script>
 </body>
 
