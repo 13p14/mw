@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karate Rank Tracker</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #F5F5F5;
+            color: #1a1a1a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Contenedor del cinturón (progreso) */
+        #progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 25px;
+            background: #333;
+            z-index: 1000;
+            border-bottom: 3px solid #000;
+            /* Ocultar inicialmente hasta que pasemos la primera sección */
+            transform: translateY(-100%);
+            transition: transform 0.4s ease;
+        }
+
+        /* Clase para mostrar la barra cuando empezamos a scrollear */
+        #progress-container.visible {
+            transform: translateY(0);
+        }
+
+        #belt-progress {
+            height: 100%;
+            width: 0%;
+            background-color: white;
+            transition: background-color 0.3s ease, width 0.1s linear;
+        }
+
+        section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 30px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            max-width: 300px;
+        }
+
+        .label {
+            position: fixed;
+            top: 40px;
+            right: 20px;
+            font-weight: bold;
+            color: #777;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .label.visible {
+            opacity: 1;
+        }
+
+        /* Estilo para la flecha de la intro */
+        .scroll-down-arrow {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0) translateX(-50%);
+            }
+
+            40% {
+                transform: translateY(-15px) translateX(-50%);
+            }
+
+            60% {
+                transform: translateY(-7px) translateX(-50%);
+            }
+        }
+
+        .kuro-text {
+            color: #f5f5f5 !important;
+        }
+
+        .icon-container {
+            margin-bottom: 20px;
+            color: #d32f2f;
+            /* Color por defecto */
+            transition: transform 0.3s ease;
+        }
+
+        section:hover .icon-container {
+            transform: scale(1.1);
+        }
+
+        h1,
+        h2 {
+            margin: 10px 0;
+        }
+
+        .foot-note {
+            width: 100%;
+            max-width: 320px;
+            /* Para que coincida con el ancho de tus párrafos */
+            text-align: left;
+            /* Alineación a la izquierda */
+            margin-top: 40px;
+            
+        }
+
+        .foot-note p {
+            margin: 5px 0;
+            text-align: left;
+            font-style: italic;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- The Belt Progress Bar -->
+    <div id="progress-container">
+        <div id="belt-progress"></div>
+    </div>
+
+    <div class="label" id="rank-display">Shiro Obi</div>
+
+    <!-- Sections -->
+    <section id="intro">
+        <h1>Para mi sensei favorita</h1>
+        <p>
+            En el karate, el camino se recorre paso a paso, con paciencia y entrega.
+            He diseñado este recorrido para combinar
+            <strong>tu amor por el Karate</strong> y
+            <strong>mi pasión por la programación.</strong>
+        </p>
+        <br>
+        <p>Desde el color blanco de la primera mirada hasta el negro del mayor privilegio.</p>
+        <!-- --- The New Arrow Element --- -->
+        <div class="scroll-down-arrow">&#8595;</div>
+    </section>
+    <hr>
+    <!-- Reemplaza las secciones correspondientes en tu HTML con estas: -->
+
+    <!-- Shiro Obi (Blanco) -->
+    <section data-color="#ffffff" data-rank="Shiro Obi">
+        <img class="icon-container" src="./assets/svg/comienzo.png" alt="El comienzo">
+        <h1>El Comienzo</h1>
+        <p>Esta etapa representa el inicio de todo: la pureza del primer instante en que nuestras miradas se encontraron
+            y nació la primera sonrisa.</p>
+        <div class="scroll-down-arrow">始</div>
+    </section>
+    <hr>
+
+    <!-- Ki Obi (Amarillo) -->
+    <section data-color="#ffe135" data-rank="Ki Obi">
+        <img class="icon-container" src="./assets/svg/semilla.png" alt="La semilla">
+        <h1>La Semilla</h1>
+        <p>Esta etapa representa el despertar de la curiosidad, donde las primeras risas compartidas nos permitieron
+            descubrir todo lo que nos une.</p>
+        <div class="scroll-down-arrow">友</div>
+    </section>
+    <hr>
+
+    <!-- Daidaiiro Obi (Naranja) -->
+    <section data-color="#ff8c00" data-rank="Daidaiiro Obi">
+        <img class="icon-container" src="./assets/svg/cimientos.png" alt="La estabilidad">
+        <h1>Los Cimientos</h1>
+        <p>Esta etapa representa el momento de la decisión de querer formar algo más contigo. Ambos nos sentimos cómodos
+            con el otro y comenzamos a tocar más el tema y construir una base sólida donde caminar.</p>
+        <div class="scroll-down-arrow">忍</div>
+    </section>
+    <hr>
+
+    <!-- Midori Obi (Verde) -->
+    <section data-color="#228b22" data-rank="Midori Obi">
+        <img class="icon-container" src="./assets/svg/brote.png" alt="El crecimiento">
+        <h1>El Crecimiento</h1>
+        <p>Esta etapa representa el florecer de mi afecto hacia ti, donde la seguridad de un abrazo y mis explosiones de
+            cariño marcaron nuestro avance.</p>
+        <div class="scroll-down-arrow">忍</div>
+    </section>
+    <hr>
+
+    <!-- Ao Obi (Azul) -->
+    <section data-color="#0000ff" data-rank="Ao Obi">
+        <img class="icon-container" src="./assets/svg/fluidez.png" alt="">
+        <h1>La Armonía</h1>
+        <p>Esta etapa representa nuestra capacidad de fluir, entendiéndonos sin necesidad de palabras y adaptándonos al
+            ritmo del otro.</p>
+        <div class="scroll-down-arrow">心</div>
+    </section>
+    <hr>
+
+    <!-- Murasaki Obi (Morado) -->
+    <section data-color="#A32CC4" data-rank="Murasaki Obi">
+        <img class="icon-container" src="./assets/svg/horizonte.png" alt="La dedicación">
+        <h1>El Horizonte</h1>
+        <p>Esta etapa representa el puente hacia el futuro, uniendo los descubrimientos del inicio con la madurez de lo
+            que hoy estamos construyendo.</p>
+        <div class="scroll-down-arrow">心</div>
+    </section>
+    <hr>
+
+    <!-- Aka Obi (Rojo) -->
+    <section data-color="#FF0000" data-rank="Aka Obi">
+        <img class="icon-container" src="./assets/svg/fuerza.png" alt="La confianza">
+        <h1>La Fuerza</h1>
+        <p>Esta etapa representa el coraje y la pasión que necesitamos para poder hacer que esto funcione de la forma en
+            la que ambos queremos  <i style="font-size: 1rem;">(y también que te quieres poner mamadísima)</i>.</p>
+        <div class="scroll-down-arrow">心</div>
+    </section>
+    <hr>
+
+    <!-- Chairo Obi (Marrón) -->
+    <section data-color="#4A2511" data-rank="Chairo Obi">
+        <img class="icon-container" src="./assets/svg/perfeccion.png" alt="La perfeccion">
+        <h1>La Perfección</h1>
+        <p>Esta etapa representa el esfuerzo por pulir nuestra relación, buscando ese equilibrio perfecto que
+            funcione para ambos.</p>
+        <div class="scroll-down-arrow">心</div>
+    </section>
+    <hr>
+
+    <!-- Kuro Obi (Negro) -->
+    <section data-color="#000000" data-rank="Kuro Obi" style="background-color: #1a1a1a;">
+        <img class="icon-container" style="width: 250px;" src="./assets/svg/honor.png" alt="">
+        <h1 class="kuro-text">El mayor honor</h1>
+        <p class="kuro-text">
+            Esta etapa representa el mayor privilegio para mi: poder llegar a tener una relación que no sientas como una
+            carga,
+            <strong>donde siempre puedas ser tú misma</strong> y sigamos aprendiendo juntos este camino.
+        </p>
+        <br>
+        <div class="foot-note">
+            <p class="kuro-text">Te quiero &#9825;</p>
+            <p class="signature kuro-text">- Fernando</p>
+        </div>
+        <div class="scroll-down-arrow kuro-text">愛</div>
+    </section>
+
+    <script>
+        const progressBar = document.getElementById('belt-progress');
+        const progressContainer = document.getElementById('progress-container');
+        const rankDisplay = document.getElementById('rank-display');
+        const sections = document.querySelectorAll('section:not(#intro)'); // Ignoramos la intro
+        const introSection = document.getElementById('intro');
+
+        window.onscroll = () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const introHeight = introSection.offsetHeight;
+
+            // 1. Mostrar/Ocultar la barra de progreso
+            if (scrollTop > introHeight / 2) {
+                progressContainer.classList.add('visible');
+                rankDisplay.classList.add('visible');
+            } else {
+                progressContainer.classList.remove('visible');
+                rankDisplay.classList.remove('visible');
+            }
+
+            // 2. Calcular progreso (empezando DESDE el final de la intro)
+            const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+            let scrolled = ((scrollTop) / totalHeight) * 100;
+
+            // Limitar entre 0 y 100
+            scrolled = Math.max(0, Math.min(scrolled, 100));
+            progressBar.style.width = scrolled + "%";
+
+            // 3. Cambiar color y texto
+            sections.forEach((section) => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= 150 && rect.bottom >= 150) {
+                    const color = section.getAttribute('data-color');
+                    const rank = section.getAttribute('data-rank');
+                    progressBar.style.backgroundColor = color;
+                    rankDisplay.innerText = rank;
+
+                }
+            });
+        };
+    </script>
+</body>
+
+</html>
